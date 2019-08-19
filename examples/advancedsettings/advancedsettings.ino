@@ -16,7 +16,7 @@
   See the LICENSE file for details.
  ***************************************************************************/
 
-#include <Wire.h>
+#include <WireNoFreeze.h>
 #include <SPI.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>

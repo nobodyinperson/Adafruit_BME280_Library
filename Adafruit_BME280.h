@@ -25,7 +25,7 @@
 
 #include <Adafruit_Sensor.h>
 #include <SPI.h>
-#include <Wire.h>
+#include <WireNoFreeze.h>
 
 /*!
  *  @brief  default I2C address

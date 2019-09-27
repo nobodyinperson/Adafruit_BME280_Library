@@ -29,9 +29,9 @@
  */
 
 #include "Adafruit_BME280.h"
-#include "Arduino.h"
 #include <SPI.h>
 #include <WireNoFreeze.h>
+#include "Arduino.h"
 
 /*!
  *  @brief  class constructor
@@ -136,25 +136,18 @@ bool Adafruit_BME280::init() {
 
   // check if sensor, i.e. the chip ID is correct
   _sensorID = read8(BME280_REGISTER_CHIPID);
-  if (_sensorID != 0x60)
-    return false;
+  if (_sensorID != 0x60) return false;
 
   // reset the device using soft-reset
   // this makes sure the IIR is off, etc.
   write8(BME280_REGISTER_SOFTRESET, 0xB6);
 
-  // wait for chip to wake up.
-  delay(300);
-
   // if chip is still reading calibration, delay
-  while (isReadingCalibration())
-    delay(100);
+  while (isReadingCalibration()) delay(100);
 
-  readCoefficients(); // read trimming parameters, see DS 4.2.2
+  readCoefficients();  // read trimming parameters, see DS 4.2.2
 
-  setSampling(); // use defaults
-
-  delay(100);
+  setSampling();  // use defaults
 
   return true;
 }
@@ -201,8 +194,7 @@ void Adafruit_BME280::setSampling(sensor_mode mode,
  */
 uint8_t Adafruit_BME280::spixfer(uint8_t x) {
   // hardware SPI
-  if (_sck == -1)
-    return _spi->transfer(x);
+  if (_sck == -1) return _spi->transfer(x);
 
   // software SPI
   uint8_t reply = 0;
@@ -211,8 +203,7 @@ uint8_t Adafruit_BME280::spixfer(uint8_t x) {
     digitalWrite(_sck, LOW);
     digitalWrite(_mosi, x & (1 << i));
     digitalWrite(_sck, HIGH);
-    if (digitalRead(_miso))
-      reply |= 1;
+    if (digitalRead(_miso)) reply |= 1;
   }
   return reply;
 }
@@ -232,11 +223,10 @@ void Adafruit_BME280::write8(byte reg, byte value) {
     if (_sck == -1)
       _spi->beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0));
     digitalWrite(_cs, LOW);
-    spixfer(reg & ~0x80); // write, bit 7 low
+    spixfer(reg & ~0x80);  // write, bit 7 low
     spixfer(value);
     digitalWrite(_cs, HIGH);
-    if (_sck == -1)
-      _spi->endTransaction(); // release the SPI bus
+    if (_sck == -1) _spi->endTransaction();  // release the SPI bus
   }
 }
 
@@ -258,11 +248,10 @@ uint8_t Adafruit_BME280::read8(byte reg) {
     if (_sck == -1)
       _spi->beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0));
     digitalWrite(_cs, LOW);
-    spixfer(reg | 0x80); // read, bit 7 high
+    spixfer(reg | 0x80);  // read, bit 7 high
     value = spixfer(0);
     digitalWrite(_cs, HIGH);
-    if (_sck == -1)
-      _spi->endTransaction(); // release the SPI bus
+    if (_sck == -1) _spi->endTransaction();  // release the SPI bus
   }
   return value;
 }
@@ -285,11 +274,10 @@ uint16_t Adafruit_BME280::read16(byte reg) {
     if (_sck == -1)
       _spi->beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0));
     digitalWrite(_cs, LOW);
-    spixfer(reg | 0x80); // read, bit 7 high
+    spixfer(reg | 0x80);  // read, bit 7 high
     value = (spixfer(0) << 8) | spixfer(0);
     digitalWrite(_cs, HIGH);
-    if (_sck == -1)
-      _spi->endTransaction(); // release the SPI bus
+    if (_sck == -1) _spi->endTransaction();  // release the SPI bus
   }
 
   return value;
@@ -344,7 +332,7 @@ uint32_t Adafruit_BME280::read24(byte reg) {
     if (_sck == -1)
       _spi->beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0));
     digitalWrite(_cs, LOW);
-    spixfer(reg | 0x80); // read, bit 7 high
+    spixfer(reg | 0x80);  // read, bit 7 high
 
     value = spixfer(0);
     value <<= 8;
@@ -353,8 +341,7 @@ uint32_t Adafruit_BME280::read24(byte reg) {
     value |= spixfer(0);
 
     digitalWrite(_cs, HIGH);
-    if (_sck == -1)
-      _spi->endTransaction(); // release the SPI bus
+    if (_sck == -1) _spi->endTransaction();  // release the SPI bus
   }
 
   return value;
@@ -373,8 +360,7 @@ void Adafruit_BME280::takeForcedMeasurement() {
     write8(BME280_REGISTER_CONTROL, _measReg.get());
     // wait until measurement has been completed, otherwise we would read
     // the values from the last measurement
-    while (read8(BME280_REGISTER_STATUS) & 0x08)
-      delay(1);
+    while (read8(BME280_REGISTER_STATUS) & 0x08) delay(1);
   }
 }
 
@@ -424,7 +410,7 @@ float Adafruit_BME280::readTemperature(void) {
   int32_t var1, var2;
 
   int32_t adc_T = read24(BME280_REGISTER_TEMPDATA);
-  if (adc_T == 0x800000) // value in case temp measurement was disabled
+  if (adc_T == 0x800000)  // value in case temp measurement was disabled
     return NAN;
   adc_T >>= 4;
 
@@ -451,10 +437,10 @@ float Adafruit_BME280::readTemperature(void) {
 float Adafruit_BME280::readPressure(void) {
   int64_t var1, var2, p;
 
-  readTemperature(); // must be done first to get t_fine
+  readTemperature();  // must be done first to get t_fine
 
   int32_t adc_P = read24(BME280_REGISTER_PRESSUREDATA);
-  if (adc_P == 0x800000) // value in case pressure measurement was disabled
+  if (adc_P == 0x800000)  // value in case pressure measurement was disabled
     return NAN;
   adc_P >>= 4;
 
@@ -468,7 +454,7 @@ float Adafruit_BME280::readPressure(void) {
       (((((int64_t)1) << 47) + var1)) * ((int64_t)_bme280_calib.dig_P1) >> 33;
 
   if (var1 == 0) {
-    return 0; // avoid exception caused by division by zero
+    return 0;  // avoid exception caused by division by zero
   }
   p = 1048576 - adc_P;
   p = (((p << 31) - var2) * 3125) / var1;
@@ -484,10 +470,10 @@ float Adafruit_BME280::readPressure(void) {
  *  @returns the humidity value read from the device
  */
 float Adafruit_BME280::readHumidity(void) {
-  readTemperature(); // must be done first to get t_fine
+  readTemperature();  // must be done first to get t_fine
 
   int32_t adc_H = read16(BME280_REGISTER_HUMIDDATA);
-  if (adc_H == 0x8000) // value in case humidity measurement was disabled
+  if (adc_H == 0x8000)  // value in case humidity measurement was disabled
     return NAN;
 
   int32_t v_x1_u32r;

@@ -25,7 +25,12 @@
 
 #include <Adafruit_Sensor.h>
 #include <SPI.h>
+
+#if ESP8266
+#include <Wire.h>
+#else
 #include <WireNoFreeze.h>
+#endif
 
 /*!
  *  @brief  default I2C address
@@ -39,7 +44,8 @@
 /*!
  *  @brief Register addresses
  */
-enum {
+enum
+{
   BME280_REGISTER_DIG_T1 = 0x88,
   BME280_REGISTER_DIG_T2 = 0x8A,
   BME280_REGISTER_DIG_T3 = 0x8C,
@@ -81,7 +87,8 @@ enum {
     @brief  calibration data
 */
 /**************************************************************************/
-typedef struct {
+typedef struct
+{
   uint16_t dig_T1; ///< temperature compensation value
   int16_t dig_T2;  ///< temperature compensation value
   int16_t dig_T3;  ///< temperature compensation value
@@ -131,14 +138,16 @@ class Adafruit_BME280_Unified : public Adafruit_Sensor
     @brief  Class that stores state and functions for interacting with BME280 IC
 */
 /**************************************************************************/
-class Adafruit_BME280 {
+class Adafruit_BME280
+{
 public:
   /**************************************************************************/
   /*!
       @brief  sampling rates
   */
   /**************************************************************************/
-  enum sensor_sampling {
+  enum sensor_sampling
+  {
     SAMPLING_NONE = 0b000,
     SAMPLING_X1 = 0b001,
     SAMPLING_X2 = 0b010,
@@ -152,7 +161,8 @@ public:
       @brief  power modes
   */
   /**************************************************************************/
-  enum sensor_mode {
+  enum sensor_mode
+  {
     MODE_SLEEP = 0b00,
     MODE_FORCED = 0b01,
     MODE_NORMAL = 0b11
@@ -163,7 +173,8 @@ public:
       @brief  filter values
   */
   /**************************************************************************/
-  enum sensor_filter {
+  enum sensor_filter
+  {
     FILTER_OFF = 0b000,
     FILTER_X2 = 0b001,
     FILTER_X4 = 0b010,
@@ -176,7 +187,8 @@ public:
       @brief  standby duration in ms
   */
   /**************************************************************************/
-  enum standby_duration {
+  enum standby_duration
+  {
     STANDBY_MS_0_5 = 0b000,
     STANDBY_MS_10 = 0b110,
     STANDBY_MS_20 = 0b111,
@@ -189,14 +201,13 @@ public:
 
   // constructors
   Adafruit_BME280();
-  Adafruit_BME280(int8_t cspin, SPIClass *theSPI = &SPI);
-      Adafruit_BME280(int8_t cspin, int8_t mosipin, int8_t misopin,
-                      int8_t sckpin);
+  Adafruit_BME280(int8_t cspin, SPIClass* theSPI = &SPI);
+  Adafruit_BME280(int8_t cspin, int8_t mosipin, int8_t misopin, int8_t sckpin);
 
   bool begin();
-  bool begin(TwoWire *theWire);
+  bool begin(TwoWire* theWire);
   bool begin(uint8_t addr);
-  bool begin(uint8_t addr, TwoWire *theWire);
+  bool begin(uint8_t addr, TwoWire* theWire);
   bool init();
 
   void setSampling(sensor_mode mode = MODE_NORMAL,
@@ -216,8 +227,8 @@ public:
   uint32_t sensorID(void);
 
 protected:
-  TwoWire *_wire; //!< pointer to a TwoWire object
-  SPIClass *_spi; //!< pointer to SPI object
+  TwoWire* _wire; //!< pointer to a TwoWire object
+  SPIClass* _spi; //!< pointer to SPI object
   void readCoefficients(void);
   bool isReadingCalibration(void);
   uint8_t spixfer(uint8_t x);
@@ -248,7 +259,8 @@ protected:
       @brief  config register
   */
   /**************************************************************************/
-  struct config {
+  struct config
+  {
     // inactive duration (standby time) in normal mode
     // 000 = 0.5 ms
     // 001 = 62.5 ms
@@ -282,7 +294,8 @@ protected:
       @brief  ctrl_meas register
   */
   /**************************************************************************/
-  struct ctrl_meas {
+  struct ctrl_meas
+  {
     // temperature oversampling
     // 000 = skipped
     // 001 = x1
@@ -317,7 +330,8 @@ protected:
       @brief  ctrl_hum register
   */
   /**************************************************************************/
-  struct ctrl_hum {
+  struct ctrl_hum
+  {
     /// unused - don't set
     unsigned int none : 5;
 
